@@ -1,0 +1,305 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package selfstudy;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Scanner;
+import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author Samarth S Sangam
+ */
+
+class ftpclient{
+
+}	
+
+
+public class clientFrame extends javax.swing.JFrame {
+        DataOutputStream out;
+    DataInputStream in;
+    BufferedReader bufread;
+    BufferedWriter bufwrite;
+    BufferedInputStream bufin;
+    BufferedOutputStream bufout;
+    Scanner s=new Scanner(System.in); 
+    Socket sc;
+
+    public void menu() throws Exception{
+            System.out.println("1:Send");
+            System.out.println("2:Receive");
+            System.out.println("3:Chat");
+            System.out.println("4:Exit");
+            int opt;
+            System.out.println("Enter the service required");
+            opt=s.nextInt();
+            switch(opt){
+                    case 1: out.writeUTF("Send");
+                            send();
+                            break;
+                    case 2: out.writeUTF("Receive");
+                            receive();
+                            break;
+                    case 3: 
+                            break;
+                    case 4: out.writeUTF("Exit");
+                            System.out.println("Client closed");
+                            System.exit(0);
+                            break;
+            }
+    }
+
+    public void send() throws Exception{
+            String name=in.readUTF();
+            File f=new File(name);
+            if(!f.exists()){
+                    out.writeUTF("Requested file does not exist");
+                    return;
+            }
+            else{
+                    out.writeUTF("Sending file");
+                    System.out.println("Sending file");
+                try (FileInputStream fi = new FileInputStream(f)) {
+                    int data;
+                    do{
+                        data=fi.read();
+                        out.write(data);
+                    }while(data!=-1);
+                    System.out.println("File successfully sent");
+                }
+                    in.close();
+                    out.close();
+            }
+    }
+
+    public void receive() throws Exception{
+            System.out.println("Enter the name of the file required");
+            String name=bufread.readLine();
+            out.writeUTF(name);
+            String msg=in.readUTF();
+            if(msg.compareTo("Requested file does not exist")==0)
+                    System.out.println("Requested file does not exist");
+            else{
+                    System.out.println("Receiving file");
+                    File f=new File(name);
+                    if(f.exists())
+                            System.out.println("Requested file already exists");
+                    else if(msg.compareTo("Sending file")==0){
+                        try (FileOutputStream fo = new FileOutputStream(f)) {
+                            int data;
+                            do{
+                                data=in.read();
+                                fo.write(data);
+                            }while(data!=-1);
+                        }
+                            System.out.println("File succesfully received");
+                            in.close();
+                            out.close();
+                    }
+            }
+    }
+
+    public void chat() throws IOException{
+            Boolean con;
+            out.writeBoolean(false);
+            while(true){
+                    con=in.readBoolean();
+                    if(con){
+                            String msgi=in.readUTF();
+                            System.out.println("Server: "+msgi);
+                            out.writeBoolean(false);
+                    }
+                    else{
+                            out.writeBoolean(true);
+                            System.out.print("Client: ");
+                            String msgo=bufread.readLine();
+                            out.writeUTF(msgo);
+                    }
+            }
+    }
+
+    /**
+     * Creates new form clientFrame
+     * @param sock
+     */
+    public clientFrame(Socket sock) {
+        try{
+            sc=sock;
+            out=new DataOutputStream(sc.getOutputStream());
+            in=new DataInputStream(sc.getInputStream());
+            bufread=new BufferedReader(new InputStreamReader(System.in));
+        }
+        catch(IOException ex){
+                System.out.println("Error");
+        }
+        initComponents();
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        Client = new javax.swing.JLabel();
+        exit = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        Send = new javax.swing.JMenuItem();
+        Recieve = new javax.swing.JMenuItem();
+        message = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        Client.setText("                       Client");
+
+        exit.setText("Exit");
+        exit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exitActionPerformed(evt);
+            }
+        });
+
+        jMenu1.setText("File");
+
+        Send.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_1, 0));
+        Send.setText("Send");
+        Send.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SendActionPerformed(evt);
+            }
+        });
+        jMenu1.add(Send);
+
+        Recieve.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_2, 0));
+        Recieve.setText("Recieve");
+        Recieve.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RecieveActionPerformed(evt);
+            }
+        });
+        jMenu1.add(Recieve);
+
+        message.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_3, 0));
+        message.setText("Message");
+        jMenu1.add(message);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(155, 155, 155)
+                        .addComponent(exit))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(96, 96, 96)
+                        .addComponent(Client, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(109, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(Client, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 163, Short.MAX_VALUE)
+                .addComponent(exit)
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void SendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SendActionPerformed
+            try {
+                // TODO add your handling code here:
+                out.writeUTF("Send");
+                send();
+            } catch (IOException ex) {
+                Logger.getLogger(clientFrame.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                Logger.getLogger(clientFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+    }//GEN-LAST:event_SendActionPerformed
+
+    private void RecieveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RecieveActionPerformed
+            try {
+                // TODO add your handling code here:
+                out.writeUTF("Receive");
+                try {
+                    receive();
+                } catch (Exception ex) {
+                    Logger.getLogger(clientFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(clientFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+    }//GEN-LAST:event_RecieveActionPerformed
+    private void messageActionPerformed(java.awt.event.ActionEvent evt) {   
+            try {
+                out.writeUTF("Chat");
+                chat();
+            } catch (IOException ex) {
+                Logger.getLogger(clientFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+    }  
+    private void exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitActionPerformed
+        // TODO add your handling code here:
+        System.exit(0);
+    }//GEN-LAST:event_exitActionPerformed
+
+    /**
+     * @param args the command line arguments
+     * @throws java.io.IOException
+     */
+    public static void main(String args[]) throws IOException, Exception {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(clientFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        Socket sock=new Socket("127.0.0.1",6003);
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new clientFrame(sock).setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel Client;
+    private javax.swing.JMenuItem Recieve;
+    private javax.swing.JMenuItem Send;
+    private javax.swing.JButton exit;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem message;
+    // End of variables declaration//GEN-END:variables
+}
