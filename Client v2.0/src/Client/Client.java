@@ -43,57 +43,59 @@ public class Client {
 
     public void send(String name) throws Exception
     {
+        out.writeUTF(name);
         File f=new File(name);
         if(!f.exists())
         {
-                out.writeUTF("Requested file does not exist");
+            out.writeUTF("Requested file does not exist");
         }
         else
         {
             out.writeUTF("Sending file");
-            JOptionPane.showMessageDialog(null, "Sending File");        
+            JOptionPane.showMessageDialog(null, "Sending File"); 
             try (FileInputStream fi = new FileInputStream(f)) {
-            int data;
-            do
-            {
-                data=fi.read();
-                out.write(data);
-            }while(data!=-1);
-            JOptionPane.showMessageDialog(null, "Successfully sent");
-        }
-        in.close();
-        out.close();
-        }
-    }
-
-    public void receive(String name) throws Exception
-    {
-        out.writeUTF(name);
-        String msg=in.readUTF();
-        if(msg.compareTo("Requested file does not exist")==0)
-            System.out.println("Requested file does not exist");
-        else
-        {
-            JOptionPane.showMessageDialog(null, "Recieving File");   
-            File f=new File(name);
-            if(f.exists())
-                System.out.println("Requested file already exists");
-            else if(msg.compareTo("Sending file")==0)
-            {
-                try (FileOutputStream fo = new FileOutputStream(f)) {
                 int data;
                 do
                 {
-                    data=in.read();
-                    fo.write(data);
+                    data=fi.read();
+                    out.write(data);
                 }while(data!=-1);
+                JOptionPane.showMessageDialog(null, "Successfully sent");
+            }
+            in.close();
+            out.close();
+        }
+    }
+
+    public void receive() throws Exception
+    {
+        String name=in.readUTF();
+        String msg=in.readUTF();
+        if(msg.compareTo("Requested file does not exist")==0)
+            JOptionPane.showMessageDialog(null ,"Requested file does not exist\nIncorrect Filename", "File not Found", JOptionPane.ERROR_MESSAGE);
+        else
+        {
+            JOptionPane.showMessageDialog(null, "Recieving File"); 
+            File f=new File(name);
+            if(f.exists())
+                    JOptionPane.showMessageDialog(null ,"Requested file already exist", "Duplicate File", JOptionPane.ERROR_MESSAGE);
+            else if(msg.compareTo("Sending file")==0)
+            {
+                try (FileOutputStream fo = new FileOutputStream(f)) {
+                    int data;
+                    do
+                    {
+                        data=in.read();
+                        fo.write(data);
+                    }while(data!=-1);
                 }
-            JOptionPane.showMessageDialog(null, "Successfully Recieved");
+                JOptionPane.showMessageDialog(null, "Successfully Recieved");
                 in.close();
                 out.close();
             }
         }
     }
+
 
     public void chat() throws IOException 
     {
@@ -116,6 +118,5 @@ public class Client {
                 out.writeUTF(msgo);
             }
         }
-    }
-    
+    } 
 }
